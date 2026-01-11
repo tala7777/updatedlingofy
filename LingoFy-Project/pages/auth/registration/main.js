@@ -221,10 +221,10 @@ document.addEventListener("DOMContentLoaded", function () {
             // Redirect based on role
             if (userToSave.role === "admin") {
               window.location.href =
-                "/LingoFy-Project/pages/admin/admin-dashboard/index.html"; // Admin dashboard
+                "../../admin/dashboard/index.html"; // Admin dashboard
             } else {
               window.location.href =
-                "/LingoFy-Project/pages/user/user-dashboard/index.html"; // Student dashboard
+                "../../user/dashboard/index.html"; // Student dashboard
             }
           }
         });

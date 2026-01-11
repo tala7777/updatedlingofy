@@ -8,34 +8,30 @@ window.onload = function () {
   formObj.forEach((form) => {
     let tr = document.createElement("tr");
     tr.innerHTML = `
-        <tr>
           <td>${num++}</td>
           <td>${form.formTitle}</td>
           <td>${form.numberOfQuestions}</td>
           <td>${formStatus(form.formStatus)}</td>
           <td>${form.formDate}</td>
           <td>
-              <button class="btn btn-sm btn-outline-primary me-1" title="Edit">
+              <button class="btn btn-sm btn-outline-primary me-1" title="Edit" onclick="editForm(${form.formId})">
                   <i class="bi bi-pencil"></i> Edit
               </button>
               <button class="btn btn-sm btn-outline-danger me-1" title="Delete"
                   onclick="confirmDelete(${form.formId})">
                   <i class="bi bi-trash"></i> Delete
               </button>
-              <button class="btn btn-sm ${
-                form.formStatus
-                  ? "btn-outline-secondary"
-                  : "btn-outline-success"
-              }" 
+              <button class="btn btn-sm ${form.formStatus
+        ? "btn-outline-secondary"
+        : "btn-outline-success"
+      }" 
                       title="${form.formStatus ? "Deactivate" : "Activate"}"
                       onclick="activate_deactivate_Btn(${form.formId})">
-                  <i class="bi ${
-                    form.formStatus ? "bi-pause-circle" : "bi-play-circle"
-                  }"></i> 
+                  <i class="bi ${form.formStatus ? "bi-pause-circle" : "bi-play-circle"
+      }"></i> 
                   ${form.formStatus ? "Deactivate" : "Activate"}
               </button>
           </td>
-      </tr>
     `;
     formsTable.appendChild(tr);
   });
@@ -89,4 +85,8 @@ function confirmDelete(deleteId) {
       location.reload();
     }
   });
+}
+
+function editForm(id) {
+  window.location.href = `../create-form/index.html?editId=${id}`;
 }

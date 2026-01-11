@@ -18,15 +18,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
     tests.forEach((test) => {
       const card = document.createElement("div");
-      card.className = "col-md-4 mb-3";
+      card.className = "col-md-4 mb-4 d-flex";
 
       card.innerHTML = `
-        <div class="card shadow-sm p-3 h-100">
-          <h5>${test.formTitle}</h5>
-          <p class="text-muted">${test.formDesc}</p>
-          <p class="text-muted small">Questions: ${test.numberOfQuestions}</p>
-          <p class="text-muted small">Created: ${test?.formDate ?? "Not Set"}</p>
-          <button class="btn btn-primary w-100" onclick="startQuiz('${test.formId}')">Start</button>
+        <div class="card shadow-sm p-4 border-0 d-flex flex-column rounded-4" style="height: 280px;">
+          <div class="flex-grow-1">
+            <h5 class="fw-bold mb-3">${test.formTitle}</h5>
+            <p class="text-muted small" style="overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">${test.formDesc}</p>
+          </div>
+          <button class="btn btn-primary w-100 btn-lg rounded-3 mt-auto" onclick="startQuiz('${test.formId}')">
+            <i class="bi bi-play-fill me-1"></i>Start Quiz
+          </button>
         </div>
       `;
 
@@ -38,5 +40,5 @@ document.addEventListener("DOMContentLoaded", () => {
 function startQuiz(id) {
   localStorage.setItem("userAnswers", JSON.stringify([]));
   localStorage.setItem("currentQuiz", id);
-  window.location.href = "../quiz-page/index.html";
+  window.location.href = "../quiz/index.html";
 }

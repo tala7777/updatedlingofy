@@ -11,6 +11,23 @@ let formId = forms.length ? forms[forms.length - 1].formId : 0;
 
 let questionsData = [];
 
+// Edit mode check
+const urlParams = new URLSearchParams(window.location.search);
+const editId = urlParams.get('editId');
+let editMode = false;
+
+if (editId) {
+  const formToEdit = forms.find(f => f.formId == editId);
+  if (formToEdit) {
+    editMode = true;
+    formTitle.value = formToEdit.formTitle;
+    formDescription.value = formToEdit.formDesc;
+    questionsData = formToEdit.questions;
+    questionsCounter = questionsData.length;
+    // Re-render questions list preview will happen after DOM load or we can trigger it
+  }
+}
+
 // Form
 const formTitle = document.getElementById("formTitle");
 const formDescription = document.getElementById("formDescription");
@@ -41,7 +58,6 @@ const fontStyle = document.getElementById("fontStyle");
 // ------------------- Save Form ----------------
 saveFormBtn.addEventListener("click", (e) => {
   e.preventDefault();
-  ++formId;
 
   if (!formTitle.value.trim()) {
     Swal.fire({
@@ -61,23 +77,36 @@ saveFormBtn.addEventListener("click", (e) => {
     return;
   }
 
-  const formObj = {
-    formId: formId,
-    formDate: new Date().toLocaleDateString(),
-    formTitle: formTitle.value,
-    formDesc: formDescription.value,
-    formStatus: formStatus,
-    numberOfQuestions: questionsData.length,
-    questions: questionsData,
-  };
+  if (editMode) {
+    const index = forms.findIndex(f => f.formId == editId);
+    forms[index] = {
+      ...forms[index],
+      formTitle: formTitle.value,
+      formDesc: formDescription.value,
+      numberOfQuestions: questionsData.length,
+      questions: questionsData,
+    };
+  } else {
+    const formObj = {
+      formId: ++formId,
+      formDate: new Date().toLocaleDateString(),
+      formTitle: formTitle.value,
+      formDesc: formDescription.value,
+      formStatus: formStatus,
+      numberOfQuestions: questionsData.length,
+      questions: questionsData,
+    };
+    forms.push(formObj);
+  }
 
-  forms.push(formObj);
   window.localStorage.setItem("forms", JSON.stringify(forms));
 
   Swal.fire({
-    text: "Form saved successfully!",
+    text: editMode ? "Form updated successfully!" : "Form saved successfully!",
     confirmButtonColor: "#198754",
     icon: "success",
+  }).then(() => {
+    window.location.href = "../dashboard/index.html";
   });
 });
 
@@ -227,20 +256,18 @@ function addQuestion(e) {
       <div class="card-body">
         <div class="d-flex justify-content-between align-items-start mb-2">
           <span class="badge bg-primary">Q${questionId}</span>
-          ${
-            questionObj.isRequired
-              ? '<span class="badge bg-warning"><i class="bi bi-asterisk me-1"></i>Required</span>'
-              : ""
-          }
+          ${questionObj.isRequired
+      ? '<span class="badge bg-warning"><i class="bi bi-asterisk me-1"></i>Required</span>'
+      : ""
+    }
           <button class="btn btn-sm btn-outline-danger" onclick="removeQuestion(${questionId})">
             <i class="bi bi-trash"></i>
           </button>
         </div>
         <p class="mb-2">${questionObj.questionTitle}</p>
         <small class="text-muted">
-          Type: ${questionObj.questionType} | Options: ${
-    questionObj.options.length
-  }
+          Type: ${questionObj.questionType} | Options: ${questionObj.options.length
+    }
         </small>
       </div>
     </div>
@@ -333,4 +360,28 @@ function removeOption(element) {
 
   element.parentElement.remove();
   optionsCounter--;
+}
+
+// Initial render for edit mode
+if (editMode) {
+  questionsList.innerHTML = "";
+  questionsData.forEach(q => {
+    questionsList.innerHTML += `
+        <div class="card mb-3" data-id="${q.questionId}">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <span class="badge bg-primary">Q${q.questionId}</span>
+              ${q.isRequired ? '<span class="badge bg-warning"><i class="bi bi-asterisk me-1"></i>Required</span>' : ""}
+              <button class="btn btn-sm btn-outline-danger" onclick="removeQuestion(${q.questionId})">
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
+            <p class="mb-2">${q.questionTitle}</p>
+            <small class="text-muted">
+              Type: ${q.questionType} | Options: ${q.options.length}
+            </small>
+          </div>
+        </div>
+      `;
+  });
 }

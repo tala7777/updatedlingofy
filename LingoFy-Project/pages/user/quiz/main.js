@@ -1,7 +1,8 @@
-// ===== Quiz Taker Main JS =====
+// ===== Quiz Taker Main JS v2 =====
+console.log("Quiz JS v2 Loaded");
 const quizId = localStorage.getItem("currentQuiz");
 const allForms = JSON.parse(localStorage.getItem("forms")) || [];
-const quizData = allForms.find(f => f.formId === quizId);
+const quizData = allForms.find(f => f.formId == quizId);
 let currentIndex = 0;
 let userAnswers = JSON.parse(localStorage.getItem("userAnswers")) || [];
 
@@ -19,9 +20,9 @@ const submitBtn = document.getElementById("submitBtn");
 
 // Redirect if quiz not found
 if (!quizData) {
-    alert("No quiz found. Redirecting...");
     window.location.href = "../dashboard/index.html";
 }
+
 
 // ---------- Functions ----------
 function loadQuestion() {
@@ -52,7 +53,7 @@ function loadQuestion() {
     selectAnswer.innerHTML = '<option value="">Choose an option</option>';
 
     // Render options
-    if (q.questionType === "multipleChoice") {
+    if (q.questionType === "radio") {
         radioOptionsContainer.classList.remove("d-none");
         selectContainer.classList.add("d-none");
         q.options.forEach((opt, i) => {
@@ -92,7 +93,21 @@ function saveAnswer() {
 }
 
 function nextQuestion() {
+    console.log("nextQuestion triggered");
     saveAnswer();
+    const q = quizData.questions[currentIndex];
+    console.log("Current answer:", userAnswers[currentIndex]);
+    if (q.isRequired && !userAnswers[currentIndex]) {
+        console.log("Validation failed: Required question not answered");
+        Swal.fire({
+            icon: 'warning',
+            title: 'Action Required',
+            text: 'Please answer this question before proceeding.',
+            confirmButtonColor: '#0d6efd'
+        });
+        return;
+    }
+
     if (currentIndex < quizData.questions.length - 1) {
         currentIndex++;
         loadQuestion();
@@ -109,6 +124,17 @@ function previousQuestion() {
 
 function submitTest() {
     saveAnswer();
+    const q = quizData.questions[currentIndex];
+    if (q.isRequired && !userAnswers[currentIndex]) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Action Required',
+            text: 'Please answer this question before submitting.',
+            confirmButtonColor: '#0d6efd'
+        });
+        return;
+    }
+
     let correct = 0;
     quizData.questions.forEach((q, i) => {
         const correctAnswer = q.options.find(opt => opt.isCorrect).optionContent;
